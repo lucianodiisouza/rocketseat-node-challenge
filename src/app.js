@@ -39,7 +39,7 @@ app.put("/repositories/:id", (req, res) => {
   const toUpdate = repositories.findIndex((repository) => repository.id === id);
 
   if (toUpdate < 0) {
-    return res.status(404).json({ error: "Repository not found" });
+    return res.status(400).json({ error: "Repository not found" });
   }
 
   const actualLikes = repositories[toUpdate].likes;
@@ -64,17 +64,39 @@ app.delete("/repositories/:id", (req, res) => {
   const toRemove = repositories.findIndex((repository) => repository.id === id);
 
   if (toRemove < 0) {
-    return res.status(404).json({ error: "Repository not found" });
+    return res.status(400).json({ error: "Repository not found" });
   }
 
   repositories.splice(toRemove, 1);
 
-  return res.json({ message: "Repository deleted" });
+  return res.status(204).json({ message: "Repository deleted" });
 });
 
 // like repo
 app.post("/repositories/:id/like", (req, res) => {
-  // TODO
+  const { id } = req.params;
+
+  const toUpvote = repositories.findIndex((repository) => repository.id === id);
+
+  if (toUpvote < 0) {
+    return res.status(400).json({ error: "Repository not found!" });
+  }
+
+  const { title, url, techs, likes } = repositories[toUpvote];
+
+  const like = likes + 1;
+
+  const upVoted = {
+    id,
+    title,
+    url,
+    techs,
+    likes: like,
+  };
+
+  repositories[toUpvote] = upVoted;
+
+  return res.json(upVoted);
 });
 
 module.exports = app;
